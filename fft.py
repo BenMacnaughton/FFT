@@ -3,7 +3,7 @@ import numpy as np
 from math import exp, pi
 import sys
 import os
-
+import cv2 as cv
 
 
 def DFT(signals):
@@ -23,11 +23,11 @@ def FFT(signals):
 
     if N % 2 != 0:
         raise ValueError("must be a power of two")
-    
+
     # set limit of 2 before performiing DFT on a signal
     elif N <= 2:
         return DFT(signals)
-    
+
     else:
         # even and odd arrays
         evens = FFT(signals[::2])
@@ -38,6 +38,7 @@ def FFT(signals):
         # X_k where 0 <= k <= (N-1) / 2 done first
         # second half done after
         return np.concatenate(evens + extra_e[:int(N / 2)] * odds, evens + extra_e[int(N / 2):] * odds)
+
 
 if __name__ == "__main__":
     filename = "moonlanding.png"
@@ -57,5 +58,14 @@ if __name__ == "__main__":
         else:
             print("Please enter a valid file")
             exit(1)
-    print(filename)
-    print(mode)
+    canopen = cv.haveImageReader(filename)
+    if canopen:
+        image_array = cv.imread(filename)
+    else:
+        print("The specifed file cannot be read")
+        exit(1)
+    if mode == 1:
+        img = cv.imread(filename, 0)
+        display = np.hstack((img, img))
+        cv.imshow(filename, display)
+        cv.waitKey()
