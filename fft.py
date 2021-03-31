@@ -1,9 +1,25 @@
 import matplotlib.colors as mpl
 import numpy as np
+from math import exp, pi
 import sys
 import os
 
+def FFT(signals):
+    pass
 
+def DFT(signals):
+    N, M = signals.shape
+    transform = np.zeros((N, M))
+    exponent = exp(-2J * pi)
+
+    for n in range(N):
+        for m in range(M):
+            for l in range(N):
+                for k in range(M):  
+                    transform[n, m] += signals[n, m]* exponent**(k*m/M + l*n/N)
+    
+    return transform
+    
 if __name__ == "__main__":
     filename = "moonlanding.png"
     mode = 1
