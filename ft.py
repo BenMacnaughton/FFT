@@ -1,10 +1,4 @@
-import matplotlib.pyplot as plt
-import matplotlib.colors as colors
 import numpy as np
-import sys
-import os
-import cv2 as cv
-import math
 
 class FT:
 
