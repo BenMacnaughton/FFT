@@ -13,7 +13,7 @@ class FT:
         exponent = np.exp(2J * np.pi * k * n / N)
 
         inverse = np.dot(exponent, frequencies)
-        return inverse / N
+        return inverse
 
     '''
     Fast Inverse Fourier Transform
@@ -26,11 +26,11 @@ class FT:
             raise ValueError("must be a power of two")
 
         elif N <= 2:
-            return FT.DFT(frequencies)
+            return FT.IDFT(frequencies)
 
         else:
-            evens = FT.FFT(frequencies[::2])
-            odds = FT.FFT(frequencies[1::2])
+            evens = FT.FIFT(frequencies[::2])
+            odds = FT.FIFT(frequencies[1::2])
             extra_e = np.exp(2J * np.pi * np.arange(N) / N)
 
             return np.concatenate([evens + extra_e[:int(N / 2)] * odds, evens + extra_e[int(N / 2):] * odds])
@@ -47,9 +47,9 @@ class FT:
 
         transform = np.zeros((N, M), dtype=complex)
         for n in range(N):
-            transform[n] = FT.FFT(frequencies[n])
+            transform[n] = FT.FIFT(frequencies[n])
 
-        return np.dot(exponent, transform) / N
+        return np.dot(exponent, transform) / (N*M)
 
     '''
     Discrete Fourier Transform

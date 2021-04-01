@@ -1,7 +1,9 @@
 import sys
 import os
 import cv2 as cv
+import numpy as np
 from utils import UTILS
+from ft import FT
 
 
 if __name__ == "__main__":
@@ -33,4 +35,6 @@ if __name__ == "__main__":
         UTILS.plot_FT(img, ft)
     elif mode == 2:
         img, ft = UTILS.get_FT(filename)
-        UTILS.denoise(ft)
+        zeros, fraction = UTILS.denoise(ft)
+        print("Number of non-zero coefficients: " + str(zeros) + ", % of original: " + str(fraction*100))
+        UTILS.plot_denoised(img, ft)
