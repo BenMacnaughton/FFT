@@ -4,6 +4,7 @@ import numpy as np
 import sys
 import os
 import cv2 as cv
+import math
 
 '''
 Inverse Fourier Transform
@@ -112,18 +113,41 @@ def TDDFT(signals):
 
     return np.dot(exponent, transform)
 
-def plot_FT(img_name, transform):
-    img = cv.imread(img_name, cv.IMREAD_GRAYSCALE)
-    
-
-    result = transform.real
-
-    plt.subplot(121), plt.imshow(img, cmap='gray')
-    plt.title("Original image"), plt.xticks([]), plt.yticks([])
-    plt.subplot(122), plt.imshow(result, norm=colors.LogNorm(vmin=5))
-    plt.title("FFT form image"), plt.xticks([]), plt.yticks([])
-
+'''
+Plots an image next to its FT
+'''
+def plot_FT(img, ft):
+    #Set up dispay
+    disp, cols = plt.subplots(1, 2)
+    #Input orignal
+    cols[0].imshow(img, plt.cm.gray)
+    cols[0].set_title('Original image')
+    #Input FT
+    cols[1].imshow(np.abs(ft), norm=colors.LogNorm())
+    cols[1].set_title('LogNorm of FT')
+    disp.suptitle('Mode 1')
     plt.show()
+
+
+'''
+Returns the opened image and its FT
+'''
+def getFT(img_name):
+    #Read original image
+    img = plt.imread(img_name).astype(float)
+    shape = img.shape
+    #reshape to be of dimensions 2^n
+    reshaped = resize(shape[0]), resize(shape[1])
+    newimg = np.zeros(reshaped)
+    newimg[:shape[0], :shape[1]] = img
+    return img, TDDFT(newimg)
+
+'''
+Returns the next highest integer that is a power of 2
+'''
+def resize(val):
+    i = int(math.log(val, 2))
+    return int(pow(2, i+1))
 
 if __name__ == "__main__":
     filename = "moonlanding.png"
@@ -150,24 +174,5 @@ if __name__ == "__main__":
         print("The specifed file cannot be read")
         exit(1)
     if mode == 1:
-        img = cv.imread(filename, 0)
-        display = np.hstack((img, img))
-        cv.imshow(filename, display)
-        #cv.waitKey()
-
-    '''
-    TESTING CODE
-    '''
-    test = np.random.rand(2048, 16)
-    our_ft = TDDFT(test)
-    ft_avg = np.average(our_ft)
-    ft_min = np.amin(our_ft)
-    ft_max = np.amax(our_ft)
-    ft_std = np.std(our_ft)
-    print(ft_avg)
-    print(ft_min)
-    print(ft_max)
-    print(ft_std)
-    their_ft = np.fft.fft2(test)
-    print(np.isclose(our_ft, their_ft))
-    plot_FT(filename, our_ft)
+        img, ft = getFT(filename)
+        plot_FT(img, ft)
