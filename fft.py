@@ -38,3 +38,7 @@ if __name__ == "__main__":
         zeros, fraction = UTILS.denoise(ft)
         print("Number of non-zero coefficients: " + str(zeros) + ", % of original: " + str(fraction*100))
         UTILS.plot_denoised(img, ft)
+    elif mode == 3:
+        img, ft = UTILS.get_FT(filename)
+        compressions = [0, 25, 50, 75, 85, 95]
+        UTILS.plot_compressed(img, ft, compressions)

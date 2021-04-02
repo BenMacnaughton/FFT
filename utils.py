@@ -27,7 +27,7 @@ class UTILS:
     '''
     @staticmethod
     def plot_denoised(img, ft):
-        #Set up dispay
+        #Set up display
         disp, cols = plt.subplots(1, 2)
         denoised = FT.TDIDFT(ft).real
         shape = img.shape
@@ -41,22 +41,48 @@ class UTILS:
         plt.show()
 
     '''
+    Plots
+    '''
+    @staticmethod
+    def plot_compressed(img, ft, compressions):
+        #Set up display
+        disp, cols = plt.subplots(2, 3)
+        shape = img.shape
+        for i in range(2):
+            for j in range(3):
+                comp = i*3 + j
+                compressed = UTILS.compress(ft, compressions[comp])
+                compressed = FT.TDIDFT(compressed).real
+                cols[i][j].imshow(compressed[:shape[0], :shape[1]], plt.cm.gray)
+                cols[i][j].set_title(str(compressions[comp]) + "% compressed")
+        disp.suptitle('Mode 3')
+        plt.show()
+
+    '''
     Denoises an image by setting high frequencies to 0
     Returns the number of non zero values and the fraction of non zero values
     '''
     @staticmethod
     def denoise(ft):
-        mean, stddev = UTILS.get_stddev(ft)
-        scale = 15
+        ratio = 0.0905
         zeros = 0
         N = ft.shape[0]
         M = ft.shape[1]
-        for i in range(N):
-            for j in range(M):
-                if ft[i][j] > mean + scale * stddev:
-                    ft[i][j] = 0
-                    zeros += 1
-        return N*M - zeros, (N*M - zeros)/(N*M)
+        ft[int(N*ratio):-int(N*ratio), :] = 0
+        ft[:, int(M*ratio):-int(M*ratio)] = 0
+        zeros = ratio*N*M
+        return int(N*M - zeros), 1 - ratio
+
+    '''
+    Compresses an image by a factor of the compression input
+    and saves the compressed image
+    '''
+    @staticmethod
+    def compress(ft, compression):
+        lb = np.percentile(ft, (100 - compression)//2)
+        ub = np.percentile(ft, compression//2)
+        compressed = ft * np.logical_or(ft <= lb, ft >= ub)
+        return compressed
 
     '''
     Returns the opened image and its FT
@@ -71,42 +97,6 @@ class UTILS:
         newimg = np.zeros(reshaped)
         newimg[:shape[0], :shape[1]] = img
         return img, FT.TDDFT(newimg)
-
-    '''
-    Denoises an image by setting high frequencies to 0
-    Returns the number of non zero values and the fraction of non zero values
-    '''
-    @staticmethod
-    def get_local_mean(x, y, data):
-        max_x = data.shape[0] - 1
-        max_y = data.shape[1] - 1
-        i = 0
-        mean = 0
-        if x - 1 >= 0:
-            mean += data[x-1, y]
-            i += 1
-        if x - 1 >= 0 and y + 1 <= max_y:
-            mean += data[x - 1, y + 1]
-            i += 1
-        if x - 1 >= 0 and y - 1 >= 0:
-            mean += data[x - 1, y - 1]
-            i += 1
-        if  y - 1 >= 0:
-            mean += data[x, y - 1]
-            i += 1
-        if y - 1 >= 0 and x + 1 <= max_x:
-            mean += data[x + 1, y - 1]
-            i += 1
-        if x + 1 <= max_x:
-            mean += data[x + 1, y]
-            i += 1
-        if y + 1 <= max_y:
-            mean += data[x, y + 1]
-            i += 1
-        if x + 1 <= max_x and y + 1 <= max_y:
-            mean += data[x + 1, y + 1]
-            i += 1
-        return mean/i
 
     '''
     Returns the next highest integer that is a power of 2
@@ -133,3 +123,4 @@ class UTILS:
             for j in range(M):
                 stddev += (data[i][j] - mean) ** 2
         return mean, (stddev / (N*M)) ** (1/2)
+
