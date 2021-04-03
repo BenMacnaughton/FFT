@@ -163,4 +163,13 @@ class UTILS:
     def save_FT(ft, compression, filename):
         saved_name = filename.split(".")[0]
         saved_name += "_compressed_" + str(compression) + ".csv"
-        np.savetxt(saved_name, ft, delimiter=",")
+        file = open(saved_name, "w")
+        for i in range(ft.shape[0]):
+            file.write("[ ")
+            for j in range(ft.shape[1]):
+                if ft[i,j] != 0:
+                    val = str(ft[i,j]).replace("(", "").replace(")", "")
+                    file.write(val + " ")
+                else: file.write("0 ")
+            file.write("]\n")
+        file.close()
