@@ -97,7 +97,26 @@ class FT:
             return np.concatenate([evens + extra_e[:int(N / 2)] * odds, evens + extra_e[int(N / 2):] * odds])
 
     '''
-    Two-Dimensional Fourier Transform
+    Fast Two-Dimensional Fourier Transform
+    Takes in a 2D numpy array of size N x M
+    Performs FFT on each row and assembles a 2D transform
+    Returns 2D Transform
+    '''
+    @staticmethod
+    def TDFFT(signals):
+        N, M = signals.shape
+        n = np.arange(N)
+        l = n.reshape((N, 1))
+        exponent = np.exp(-2J * np.pi * l * n / N)
+
+        transform = np.zeros((N, M), dtype=complex)
+        for n in range(N):
+            transform[n] = FT.FFT(signals[n])
+
+        return np.dot(exponent, transform)
+
+    '''
+    Slow Two-Dimensional Fourier Transform
     Takes in a 2D numpy array of size N x M
     Performs FFT on each row and assembles a 2D transform
     Returns 2D Transform
@@ -111,6 +130,6 @@ class FT:
 
         transform = np.zeros((N, M), dtype=complex)
         for n in range(N):
-            transform[n] = FT.FFT(signals[n])
+            transform[n] = FT.DFT(signals[n])
 
         return np.dot(exponent, transform)

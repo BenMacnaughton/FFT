@@ -74,16 +74,16 @@ class UTILS:
         size = 2**5
         while size <= 2**10:
             x.append(size)
-            a = np.random.rand(size)
+            a = np.random.rand(UTILS.resize(math.sqrt(size)), UTILS.resize(math.sqrt(size)))
             dft_times = []
             fft_times = []
             for _ in range(10):
                 start = time.time()
-                FT.DFT(a)
+                FT.TDDFT(a)
                 stop = time.time()
                 dft_times.append(stop - start)
                 start = time.time()
-                FT.FFT(a)
+                FT.TDFFT(a)
                 stop = time.time()
                 fft_times.append(stop - start)
             #Get means and stdevs for both  algos
@@ -145,7 +145,7 @@ class UTILS:
         reshaped = UTILS.resize(shape[0]), UTILS.resize(shape[1])
         newimg = np.zeros(reshaped)
         newimg[:shape[0], :shape[1]] = img
-        return img, FT.TDDFT(newimg)
+        return img, FT.TDFFT(newimg)
 
     '''
     Returns the next highest integer that is a power of 2
