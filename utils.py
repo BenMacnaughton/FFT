@@ -162,7 +162,7 @@ class UTILS:
     @staticmethod
     def save_FT(ft, compression, filename):
         saved_name = filename.split(".")[0]
-        saved_name += "_compressed_" + str(compression) + ".csv"
+        saved_name += "_compressed_" + str(compression) + ".txt"
         file = open(saved_name, "w")
         for i in range(ft.shape[0]):
             file.write("[ ")
