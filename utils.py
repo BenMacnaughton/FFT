@@ -41,10 +41,10 @@ class UTILS:
         plt.show()
 
     '''
-    Plots
+    Plots a series of 6 images with varying levels of compression
     '''
     @staticmethod
-    def plot_compressed(img, ft, compressions):
+    def plot_compressed(img, ft, compressions, filename):
         #Set up display
         disp, cols = plt.subplots(2, 3)
         shape = img.shape
@@ -52,6 +52,7 @@ class UTILS:
             for j in range(3):
                 comp = i*3 + j
                 compressed = UTILS.compress(ft, compressions[comp])
+                UTILS.save_FT(compressed, compressions[comp], filename)
                 compressed = FT.TDIDFT(compressed).real
                 cols[i][j].imshow(compressed[:shape[0], :shape[1]], plt.cm.gray)
                 cols[i][j].set_title(str(compressions[comp]) + "% compressed")
@@ -107,20 +108,11 @@ class UTILS:
         return int(pow(2, i+1))
 
     '''
-    Returns the mean and standard deviation of a set of values
+    Compresses an image by a factor of the compression input
+    and saves the compressed image
     '''
     @staticmethod
-    def get_stddev(data):
-        N = data.shape[0]
-        M = data.shape[1]
-        mean = 0
-        for i in range(N):
-            for j in range(M):
-                mean += data[i][j]
-        mean /= (N*M)
-        stddev = 0
-        for i in range(N):
-            for j in range(M):
-                stddev += (data[i][j] - mean) ** 2
-        return mean, (stddev / (N*M)) ** (1/2)
-
+    def save_FT(ft, compression, filename):
+        saved_name = filename.split(".")[0]
+        saved_name += "_compressed_" + str(compression) + ".csv"
+        np.savetxt(saved_name, ft, delimiter=",")
