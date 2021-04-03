@@ -3,6 +3,8 @@ import matplotlib.colors as colors
 import numpy as np
 import math
 from ft import FT
+import time
+import statistics
 
 class UTILS:
 
@@ -60,6 +62,51 @@ class UTILS:
         plt.show()
 
     '''
+    Plots
+    '''
+    @staticmethod
+    def plot_complexity():
+        x = []
+        dft_y = []
+        fft_y = []
+        dft_stdevs = []
+        fft_stdevs = []
+        size = 2**5
+        while size <= 2**10:
+            x.append(size)
+            a = np.random.rand(size)
+            dft_times = []
+            fft_times = []
+            for _ in range(10):
+                start = time.time()
+                FT.DFT(a)
+                stop = time.time()
+                dft_times.append(stop - start)
+                start = time.time()
+                FT.FFT(a)
+                stop = time.time()
+                fft_times.append(stop - start)
+            #Get means and stdevs for both  algos
+            dft_mean = statistics.mean(dft_times)
+            dft_stdev = statistics.stdev(dft_times)
+            fft_mean = statistics.mean(fft_times)
+            fft_stdev = statistics.stdev(fft_times)
+            dft_y.append(dft_mean)
+            fft_y.append(fft_mean)
+            dft_stdevs.append(dft_stdev)
+            fft_stdevs.append(fft_stdev)
+            #Output to the user
+            print("Problem size = " + str(size))
+            print("DFT mean = " + str(dft_mean) + " DFT stdev = " + str(dft_stdev))
+            print("FFT mean = " + str(fft_mean) + " FFT stdev = " + str(fft_stdev))
+            #Proceed to next size
+            size *= 2
+        #Plot outputs
+        plt.errorbar(x, dft_y, yerr=dft_stdevs, fmt='r--')
+        plt.errorbar(x, fft_y, yerr=fft_stdevs, fmt='b--')
+        plt.show()
+
+    '''
     Denoises an image by setting high frequencies to 0
     Returns the number of non zero values and the fraction of non zero values
     '''
@@ -81,8 +128,9 @@ class UTILS:
     @staticmethod
     def compress(ft, compression):
         lb = np.percentile(ft, (100 - compression)//2)
-        ub = np.percentile(ft, compression//2)
+        ub = np.percentile(ft, 50 + compression//2)
         compressed = ft * np.logical_or(ft <= lb, ft >= ub)
+        print("Compression level = " + str(compression) + ", number of non zero values = " + str((100 - compression) * ft.size))
         return compressed
 
     '''
