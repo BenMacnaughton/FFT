@@ -34,7 +34,7 @@ if __name__ == "__main__":
     #fft mode
     if mode == 1:
         img, ft = utils.get_ft(filename)
-        utils.plot_FT(img, ft)
+        utils.plot_ft(img, ft)
     #Denoising mode
     elif mode == 2:
         img, ft = utils.get_ft(filename)

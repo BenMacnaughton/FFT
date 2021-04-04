@@ -12,7 +12,7 @@ class utils:
     Plots an image next to its ft
     '''
     @staticmethod
-    def plot_FT(img, transform):
+    def plot_ft(img, transform):
         #Set up dispay
         disp, cols = plt.subplots(1, 2)
         #Input orignal
@@ -102,8 +102,11 @@ class utils:
             #Proceed to next size
             size *= 2
         #Plot outputs
-        plt.errorbar(x, dft_y, yerr=dft_stdevs, fmt='r--')
-        plt.errorbar(x, fft_y, yerr=fft_stdevs, fmt='b--')
+        plt.errorbar(x, dft_y, yerr=dft_stdevs, fmt='r--', label='DFT')
+        plt.errorbar(x, fft_y, yerr=fft_stdevs, fmt='b--', label='FFT')
+        plt.legend(loc='upper left')
+        plt.xlabel('Size of array (s x s)')
+        plt.ylabel('Time (seconds)')
         plt.show()
 
     '''
@@ -113,13 +116,13 @@ class utils:
     @staticmethod
     def denoise(ft):
         ratio = 0.0905
-        zeros = 0
         N = ft.shape[0]
         M = ft.shape[1]
+        
         ft[int(N*ratio):-int(N*ratio), :] = 0
         ft[:, int(M*ratio):-int(M*ratio)] = 0
-        zeros = ratio*N*M
-        return int(N*M - zeros), 1 - ratio
+        non_zeros = np.count_nonzero(ft)
+        return int(non_zeros), non_zeros / (N * M)
 
     '''
     Compresses an image by a factor of the compression input
@@ -137,7 +140,7 @@ class utils:
     Returns the opened image and its ft
     '''
     @staticmethod
-    def get_ft(img_name):
+    def get_ft(img_name, custom=True):
         #Read original image
         img = plt.imread(img_name).astype(float)
         shape = img.shape
@@ -145,7 +148,11 @@ class utils:
         reshaped = utils.resize(shape[0]), utils.resize(shape[1])
         newimg = np.zeros(reshaped)
         newimg[:shape[0], :shape[1]] = img
-        return img, ft.fft2(newimg)
+        if custom:
+            transform = ft.fft2(newimg)
+        else:
+            transform = np.fft.fft2(newimg)
+        return img, transform
 
     '''
     Returns the next highest integer that is a power of 2
