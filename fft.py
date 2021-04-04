@@ -1,7 +1,7 @@
 import sys
 import os
 import cv2 as cv
-from utils import UTILS
+from utils import utils
 
 
 if __name__ == "__main__":
@@ -31,21 +31,21 @@ if __name__ == "__main__":
     else:
         print("The specified file cannot be read")
         exit(1)
-    #FFT mode
+    #fft mode
     if mode == 1:
-        img, ft = UTILS.get_FT(filename)
-        UTILS.plot_FT(img, ft)
+        img, ft = utils.get_ft(filename)
+        utils.plot_FT(img, ft)
     #Denoising mode
     elif mode == 2:
-        img, ft = UTILS.get_FT(filename)
-        zeros, fraction = UTILS.denoise(ft)
+        img, ft = utils.get_ft(filename)
+        zeros, fraction = utils.denoise(ft)
         print("Number of non-zero coefficients: " + str(zeros) + ", % of original: " + str(fraction*100))
-        UTILS.plot_denoised(img, ft)
+        utils.plot_denoised(img, ft)
     #Compression mode
     elif mode == 3:
-        img, ft = UTILS.get_FT(filename)
+        img, ft = utils.get_ft(filename)
         compressions = [0, 25, 50, 75, 85, 95]
-        UTILS.plot_compressed(img, ft, compressions, filename)
+        utils.plot_compressed(img, ft, compressions, filename)
     #Time complexity mode
     elif mode == 4:
-        UTILS.plot_complexity()
+        utils.plot_complexity()

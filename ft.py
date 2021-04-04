@@ -1,36 +1,36 @@
 import numpy as np
 
-class FT:
+class ft:
 
     '''
     Inverse Fourier Transform
     '''
     @staticmethod
-    def IDFT(frequencies):
+    def idft(frequencies):
         N = frequencies.shape[0]
         n = np.arange(N)
         k = n.reshape((N, 1))
         exponent = np.exp(2J * np.pi * k * n / N)
 
         inverse = np.dot(exponent, frequencies)
-        return inverse
+        return inverse / N
 
     '''
     Fast Inverse Fourier Transform
     '''
     @staticmethod
-    def FIFT(frequencies):
+    def ifft(frequencies):
         N = frequencies.shape[0]
 
         if N % 2 != 0:
             raise ValueError("must be a power of two")
 
         elif N <= 2:
-            return FT.IDFT(frequencies)
+            return ft.idft(frequencies)
 
         else:
-            evens = FT.FIFT(frequencies[::2])
-            odds = FT.FIFT(frequencies[1::2])
+            evens = ft.ifft(frequencies[::2])
+            odds = ft.ifft(frequencies[1::2])
             extra_e = np.exp(2J * np.pi * np.arange(N) / N)
 
             return np.concatenate([evens + extra_e[:int(N / 2)] * odds, evens + extra_e[int(N / 2):] * odds])
@@ -39,7 +39,7 @@ class FT:
     Two-Dimensional Inverse Discrete Fourier Transform
     '''
     @staticmethod
-    def TDIDFT(frequencies):
+    def ifft2(frequencies):
         N, M = frequencies.shape
         n = np.arange(N)
         l = n.reshape((N, 1))
@@ -47,9 +47,9 @@ class FT:
 
         transform = np.zeros((N, M), dtype=complex)
         for n in range(N):
-            transform[n] = FT.FIFT(frequencies[n])
+            transform[n] = ft.ifft(frequencies[n])
 
-        return np.dot(exponent, transform) / (N*M)
+        return np.dot(exponent, transform) / N
 
     '''
     Discrete Fourier Transform
@@ -57,7 +57,7 @@ class FT:
     Returns the fourier transform
     '''
     @staticmethod
-    def DFT(signals):
+    def dft(signals):
         # get the length of the array
         N = signals.shape[0]
         # create array from 1 to N-1
@@ -72,23 +72,23 @@ class FT:
     '''
     Fast Fourier Transform using Cooley-Tukey method
     Takes in 1D array of signals to be transformed
-    Returns FT
+    Returns ft
     '''
     @staticmethod
-    def FFT(signals):
+    def fft(signals):
         N = signals.shape[0]
 
         if N % 2 != 0:
             raise ValueError("must be a power of two")
 
-        # set limit of 2 before performiing DFT on a signal
-        elif N <= 2:
-            return FT.DFT(signals)
+        # set limit of 2 before performiing dft on a signal
+        elif N <= 16:
+            return ft.dft(signals)
 
         else:
             # even and odd arrays
-            evens = FT.FFT(signals[::2])
-            odds = FT.FFT(signals[1::2])
+            evens = ft.fft(signals[::2])
+            odds = ft.fft(signals[1::2])
             # array of extra exponents for the odd part
             extra_e = np.exp(-2J * np.pi * np.arange(N) / N)
             # need arrays to be same size
@@ -99,11 +99,11 @@ class FT:
     '''
     Fast Two-Dimensional Fourier Transform
     Takes in a 2D numpy array of size N x M
-    Performs FFT on each row and assembles a 2D transform
+    Performs fft on each row and assembles a 2D transform
     Returns 2D Transform
     '''
     @staticmethod
-    def TDFFT(signals):
+    def fft2(signals):
         N, M = signals.shape
         n = np.arange(N)
         l = n.reshape((N, 1))
@@ -111,18 +111,18 @@ class FT:
 
         transform = np.zeros((N, M), dtype=complex)
         for n in range(N):
-            transform[n] = FT.FFT(signals[n])
+            transform[n] = ft.fft(signals[n])
 
         return np.dot(exponent, transform)
 
     '''
     Slow Two-Dimensional Fourier Transform
     Takes in a 2D numpy array of size N x M
-    Performs FFT on each row and assembles a 2D transform
+    Performs fft on each row and assembles a 2D transform
     Returns 2D Transform
     '''
     @staticmethod
-    def TDDFT(signals):
+    def dft2(signals):
         N, M = signals.shape
         n = np.arange(N)
         l = n.reshape((N, 1))
@@ -130,6 +130,6 @@ class FT:
 
         transform = np.zeros((N, M), dtype=complex)
         for n in range(N):
-            transform[n] = FT.DFT(signals[n])
+            transform[n] = ft.dft(signals[n])
 
         return np.dot(exponent, transform)

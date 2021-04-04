@@ -2,25 +2,25 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import numpy as np
 import math
-from ft import FT
+from ft import ft
 import time
 import statistics
 
-class UTILS:
+class utils:
 
     '''
-    Plots an image next to its FT
+    Plots an image next to its ft
     '''
     @staticmethod
-    def plot_FT(img, ft):
+    def plot_FT(img, transform):
         #Set up dispay
         disp, cols = plt.subplots(1, 2)
         #Input orignal
         cols[0].imshow(img, plt.cm.gray)
         cols[0].set_title('Original image')
-        #Input FT
-        cols[1].imshow(np.abs(ft), norm=colors.LogNorm())
-        cols[1].set_title('LogNorm of FT')
+        #Input ft
+        cols[1].imshow(np.abs(transform), norm=colors.LogNorm())
+        cols[1].set_title('LogNorm of ft')
         disp.suptitle('Mode 1')
         plt.show()
 
@@ -28,10 +28,10 @@ class UTILS:
     Plots an image next to its denoised version
     '''
     @staticmethod
-    def plot_denoised(img, ft):
+    def plot_denoised(img, transform):
         #Set up display
         disp, cols = plt.subplots(1, 2)
-        denoised = FT.TDIDFT(ft).real
+        denoised = ft.ifft2(transform).real
         shape = img.shape
         #Input orignal
         cols[0].imshow(img[:shape[0], :shape[1]], plt.cm.gray)
@@ -46,16 +46,16 @@ class UTILS:
     Plots a series of 6 images with varying levels of compression
     '''
     @staticmethod
-    def plot_compressed(img, ft, compressions, filename):
+    def plot_compressed(img, transform, compressions, filename):
         #Set up display
         disp, cols = plt.subplots(2, 3)
         shape = img.shape
         for i in range(2):
             for j in range(3):
                 comp = i*3 + j
-                compressed = UTILS.compress(ft, compressions[comp])
-                UTILS.save_FT(compressed, compressions[comp], filename)
-                compressed = FT.TDIDFT(compressed).real
+                compressed = utils.compress(transform, compressions[comp])
+                utils.save_ft(compressed, compressions[comp], filename)
+                compressed = ft.ifft2(compressed).real
                 cols[i][j].imshow(compressed[:shape[0], :shape[1]], plt.cm.gray)
                 cols[i][j].set_title(str(compressions[comp]) + "% compressed")
         disp.suptitle('Mode 3')
@@ -72,18 +72,18 @@ class UTILS:
         dft_stdevs = []
         fft_stdevs = []
         size = 2**5
-        while size <= 2**10:
+        while size <= 2**8:
             x.append(size)
-            a = np.random.rand(UTILS.resize(math.sqrt(size)), UTILS.resize(math.sqrt(size)))
+            a = np.random.rand(utils.resize(size), utils.resize(size))
             dft_times = []
             fft_times = []
             for _ in range(10):
                 start = time.time()
-                FT.TDDFT(a)
+                ft.dft2(a)
                 stop = time.time()
                 dft_times.append(stop - start)
                 start = time.time()
-                FT.TDFFT(a)
+                ft.fft2(a)
                 stop = time.time()
                 fft_times.append(stop - start)
             #Get means and stdevs for both  algos
@@ -97,8 +97,8 @@ class UTILS:
             fft_stdevs.append(fft_stdev)
             #Output to the user
             print("Problem size = " + str(size))
-            print("DFT mean = " + str(dft_mean) + " DFT stdev = " + str(dft_stdev))
-            print("FFT mean = " + str(fft_mean) + " FFT stdev = " + str(fft_stdev))
+            print("dft mean = " + str(dft_mean) + " dft stdev = " + str(dft_stdev))
+            print("fft mean = " + str(fft_mean) + " fft stdev = " + str(fft_stdev))
             #Proceed to next size
             size *= 2
         #Plot outputs
@@ -134,18 +134,18 @@ class UTILS:
         return compressed
 
     '''
-    Returns the opened image and its FT
+    Returns the opened image and its ft
     '''
     @staticmethod
-    def get_FT(img_name):
+    def get_ft(img_name):
         #Read original image
         img = plt.imread(img_name).astype(float)
         shape = img.shape
         #reshape to be of dimensions 2^n
-        reshaped = UTILS.resize(shape[0]), UTILS.resize(shape[1])
+        reshaped = utils.resize(shape[0]), utils.resize(shape[1])
         newimg = np.zeros(reshaped)
         newimg[:shape[0], :shape[1]] = img
-        return img, FT.TDFFT(newimg)
+        return img, ft.fft2(newimg)
 
     '''
     Returns the next highest integer that is a power of 2
@@ -160,7 +160,7 @@ class UTILS:
     and saves the compressed image
     '''
     @staticmethod
-    def save_FT(ft, compression, filename):
+    def save_ft(ft, compression, filename):
         saved_name = filename.split(".")[0]
         saved_name += "_compressed_" + str(compression) + ".txt"
         file = open(saved_name, "w")
